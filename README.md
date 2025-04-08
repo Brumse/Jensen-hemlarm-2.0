@@ -49,16 +49,15 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
     Sätt din Pico W i bootload-läge genom att hålla ner BOOTSEL-knappen och ansluta den till din dator. Kopiera eller flytta `.uf2`-filen till Pico W.
 
 
-6.  **Hitta Pico W på nätverket:**
-
-    Använd `arp-scan` eller `nmap` för att hitta Pico W på ditt nätverk.
-
-    ```bash
-    sudo arp-scan --localnet
-    ```
-
-    Eller logga in på din router för att se anslutna enheter.
-
+6. Kör igång minicom för att lyssna på din device
+```bash
+    minicom -D /dev/ttyACM0 -b 115200
+```
+    kolla upp vad din device heter och byt ut mot ttyACM0 (som min heter)
+    prova att koppla in picon och kör nedan kommando och dra ur den och kör den igen för att lokalisera din device.
+```bash
+    ls /dev
+```
 
 ## Felhantering
 
