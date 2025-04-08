@@ -1,5 +1,9 @@
 add_executable(mqttmain mqttmain.cpp)
 
+set_target_properties(mqttmain PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 target_link_libraries(mqttmain
         pico_stdlib
         pico_cyw43_arch_lwip_threadsafe_background
@@ -14,3 +18,12 @@ pico_enable_stdio_uart(mqttmain 1)
 pico_enable_stdio_usb(mqttmain 1)
 
 pico_add_extra_outputs(mqttmain)
+
+add_custom_command(
+    TARGET mqttmain
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/src/mqttmain.uf2" # Antag att .uf2 hamnar direkt i build
+    	    "${CMAKE_BINARY_DIR}/bin/mqttmain.uf2"
+    )
+
