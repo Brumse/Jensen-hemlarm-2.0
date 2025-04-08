@@ -58,10 +58,24 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 ```bash
     ls /dev
 ```
-
+7. SSH:a in i din rasp zero och installera mosquitto och mosquitto client
+```bash 
+    sudo apt install mosquitto mosquitto-clients -y
+``` 
+8. Lägg in information i mosquitto conf för att kunna lyssna och välj rätt port.
+```bash
+    sudo vim /etc/mosquitto/mosquitto.conf
+```
+    lägg in detta längst ner i filen:
+```bash 
+    allow_anonymous true
+    listener 1883 0.0.0.0
+```
+9. kör en subscribe på ämnet
+```bash 
+    mosquitto_sub -h localhost -t /mosquitto_sub -h localhost -t /messagepub
+```
 ## Felhantering
 
 * Om anslutningen misslyckas, kontrollera att ditt SSID och lösenord är korrekta.
 * Om Pico W inte hittas på nätverket, kontrollera att den är korrekt bootloadad och att ditt WiFi-nätverk fungerar.
-
-
