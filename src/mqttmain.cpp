@@ -14,12 +14,13 @@
 #include <pico/time.h>
 #include <stdio.h>
 #include "wifi_credentials.h"
+#include <string.h>
 
 #define _MQTT_BROKER_IP "192.168.1.140"
 #define _MQTT_PORT 1883
 #define MQTT_TOPIC_LEN 100
 #define MQTT_SUBSCRIBE_QOS 1
-#define MQTT_PUBLISH_QOS 1
+#define MQTT_PUBLISH_QOS 2 //changed to QOS 2 to make sure we get all messages
 #define MQTT_PUBLISH_RETAIN 0
 
 /*
@@ -133,9 +134,9 @@ static void pub_request_cb(void *arg, err_t err) {
 static void publish_worker_fn(async_context_t *context,
                               async_at_time_worker_t *worker) {
   mqtt_client_data_t *state = (mqtt_client_data_t *)worker->user_data;
-  char msg[32];
+  char msg[32] ={0};
   snprintf(msg, sizeof(msg), "Msgs: %d", ++(state->published_messages));
-  mqtt_publish(state->mqtt_client, state->topic, msg, sizeof(msg),
+  mqtt_publish(state->mqtt_client, state->topic, msg, strlen(msg),
                MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
 
   async_context_add_at_time_worker_in_ms(context, worker, 1000);
@@ -172,13 +173,17 @@ int main(void) {
   state.mqtt_server_port = _MQTT_PORT;
   strcpy(state.topic, "/messagepub");
 
+
+  static const char* will_topic = "/alarm/offline";
+  static const char* will_msg = "pico w Offline!!";
+
   state.mqtt_client_info.client_id = "pico_w";
-  state.mqtt_client_info.keep_alive = 100;
+  state.mqtt_client_info.keep_alive = 10;
   state.mqtt_client_info.client_user = NULL;
   state.mqtt_client_info.client_pass = NULL;
-  state.mqtt_client_info.will_topic = NULL;
-  state.mqtt_client_info.will_msg = NULL;
-  state.mqtt_client_info.will_qos = 0;
+  state.mqtt_client_info.will_topic = will_topic;
+  state.mqtt_client_info.will_msg = will_msg;
+  state.mqtt_client_info.will_qos = 1;
   state.mqtt_client_info.will_retain = 0;
 
   // Setup the mqtt client and start the mqtt cycle
