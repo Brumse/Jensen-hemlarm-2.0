@@ -73,7 +73,11 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 ```
 9. kör en subscribe på ämnet
 ```bash 
-    mosquitto_sub -h localhost -t /mosquitto_sub -h localhost -t /messagepub
+    mosquitto_sub -t /alarm/offline -v
+```
+10. kör en till sub via ett annat terminalfönster 
+```bash
+    mosquitto_sub -t /messagepub -q 2
 ```
 ## Felhantering
 
