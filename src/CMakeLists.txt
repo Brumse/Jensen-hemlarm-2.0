@@ -1,4 +1,4 @@
-add_executable(mqttmain mqttmain.cpp)
+add_executable(mqttmain motiontest.cpp lcd_printer.cpp)
 
 set_target_properties(mqttmain PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
@@ -7,9 +7,9 @@ set_target_properties(mqttmain PROPERTIES
 target_link_libraries(mqttmain
         pico_stdlib
         pico_cyw43_arch_lwip_threadsafe_background
-	#add after mqtt tests are done!
-	#hardware_gpio
+	hardware_gpio
 	pico_lwip_mqtt
+	hardware_i2c
 )
 
 target_include_directories(mqttmain PUBLIC ${CMAKE_SOURCE_DIR}/include)

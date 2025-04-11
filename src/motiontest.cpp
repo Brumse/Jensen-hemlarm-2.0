@@ -1,13 +1,11 @@
 #include <stdio.h>
-#include <string>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "hardware/gpio-h"
-#include "hardware/timer.h"
 #include "wifi_credentials.h"
-#include "MQTTClient.h"
-
-
+#include "string.h"
+#include "hardware/i2c.h"
+#include "lcd_printer.h"
+#include "pico/binary_info.h"
 /*
 NOTES for adding functions:
 
@@ -20,26 +18,17 @@ const uint TRIG_PIN = 2;
 const uint ECHO_PIN = 3;
 const uint LED_PIN = 15;
 
-// move to header?
-const char *mqtt_broker_ip = 192.168.1.117;
-const int mqtt_broker_port = 1883;
-const char *mqtt_topic = "distance/sensor";
-
 // set threshold for alarm
-const float ALARM_THREHOLD = 10.0f;
-
-//MQTT client
-MQTTCLient client;
-Network network;
-unsigned char sendbuf[256];
-unsigned char readbuf[256];
+const float ALARM_THRESHOLD = 10.0f;
 
 
 void trigger_pulse()
 {
+	gpio_put(TRIG_PIN, 0);
+	sleep_us(5);
 	gpio_put(TRIG_PIN, 1);
 	sleep_us(10);
-	pgio_put(TRIG_PIN, 0);
+	gpio_put(TRIG_PIN,0);
 }
 
 float get_distance()
@@ -58,47 +47,10 @@ float get_distance()
     return (pulse_duration * 0.0343) / 2;
 }
 
-void mqtt_connect() {
-    NetworkInit(&network);
-    MQTTClientInit(&client, &network, 1000, sendbuf, sizeof(sendbuf), readbuf, sizeof(readbuf));
-
-    MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
-    data.MQTTVersion = 3;
-    data.clientID.cstring = "pico_motion_sensor";
-
-    printf("Connecting to MQTT broker...\n");
-    if(NetworkConnect(&network, mqtt_broker_ip, mqtt_broker_port) < 0 ||
-       MQTTConnect(&client, &data) < 0) {
-        printf("MQTT connection failed!\n");
-        return;
-    }
-    printf("MQTT connected!\n");
-}
 
 int main()
 {
 	stdio_init_all();
-
-	if (cyw43_arch_init())
-	{
-		printf("failed to initialise\n");
-		return 1;
-	}
-	printf("initialised\n");
-
-	cyw43_arch_enable_sta_mode();
-
-	printf("Connecting to WiFi...\n");
-	if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID.c_str(), WIFI_PASSWORD.c_str(), CYW43_AUTH_WPA2_AES_PSK, 30000))
-	{
-		printf("failed to connect\n");
-		cyw43_arch_deinit();
-		return 1;
-	}
-	else
-	{
-		printf("Connected to WiFi\n");
-	}
 
 	// initilize GPIO-pins
 	gpio_init(TRIG_PIN);
@@ -107,40 +59,54 @@ int main()
 	gpio_set_dir(ECHO_PIN, GPIO_IN);
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
+#if !defined(i2c_default) || !defined(PICO_DEFAULT_I2C_SDA_PIN) || !defined(PICO_DEFAULT_I2C_SCL_PIN)
+#warning i2c/lcd_1602_i2c example requires a board with I2C pins
+#else
+    // Initiera I2C och LCD
+    i2c_init(i2c_default, 100 * 1000);
+    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
+    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
+    bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
 
-	// mqtt logic & connection
-	mqtt_connect();
-	
-	 while(true) {
+    lcd_init();
+    lcd_clear(); // Rensa skärmen vid start
+
+    char distance_str[20]; // Buffert för att lagra distanssträngen
+    char alarm_str[30];    // Buffert för att lagra larmsträngen
+
+    while (true) {
         float distance = get_distance();
+        //printf("Distance: %.2f cm\n", distance);
 
-        // Publish to MQTT
-        char message[50];
-        sprintf(message, "%.2f", distance);
-        MQTTMessage mqtt_msg = {
-            .qos = QOS0,
-            .retained = 0,
-            .payload = message,
-            .payloadlen = strlen(message)
-        };
-
-        if(MQTTPublish(&client, mqtt_topic, &mqtt_msg) < 0) {
-            printf("Publish failed, reconnecting...\n");
-            mqtt_connect();
-        }
-
-        // Check alarm threshold
-        if(distance < ALARM_THRESHOLD) {
+        if (distance < ALARM_THRESHOLD) {
             gpio_put(LED_PIN, 1);
-            printf("ALARM! Distance: %.2f cm\n", distance);
+        	lcd_set_cursor(0, 0);
+		lcd_string("                ");
+
+	    snprintf(alarm_str, sizeof(alarm_str), "---ALARM---");
+            lcd_set_cursor(0, (MAX_CHARS - strlen(alarm_str)) / 2); // Centrera texten
+            lcd_string(alarm_str);
+	    
+	    lcd_set_cursor(1,0);
+		lcd_string("                ");
+            snprintf(distance_str, sizeof(distance_str), "Distance: %.0f cm", distance);
+            lcd_set_cursor(1, (MAX_CHARS - strlen(distance_str)) / 2); // Centrera texten
+            lcd_string(distance_str);
+            //printf("ALARM! Distance: %.2f cm\n", distance);
         } else {
             gpio_put(LED_PIN, 0);
+            snprintf(distance_str, sizeof(distance_str), "Distance: %.0f cm", distance);
+            lcd_set_cursor(0, (MAX_CHARS - strlen(distance_str)) / 2); // Centrera texten
+            lcd_string(distance_str);
+            lcd_set_cursor(1, 0); // Rensa andra raden
+            lcd_string("                "); // Skriv över eventuellt larmmeddelande
         }
 
         sleep_ms(500);
     }
+#endif
 
-    cyw43_arch_deinit();
-
-	return 0;
+    return 0;
 }
