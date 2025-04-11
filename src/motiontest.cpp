@@ -50,6 +50,10 @@ float get_distance()
 
 int main()
 {
+	//unplugging stabalizer 
+	sleep_ms(1000);
+
+
 	stdio_init_all();
 
 	// initilize GPIO-pins
