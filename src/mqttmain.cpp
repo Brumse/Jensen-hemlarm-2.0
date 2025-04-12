@@ -13,8 +13,9 @@
 #include <pico/async_context.h>
 #include <pico/time.h>
 #include <stdio.h>
-#include "wifi_credentials.h"
 #include <string.h>
+#include "wifi_credentials.h"
+
 
 #define _MQTT_BROKER_IP "192.168.1.140"
 #define _MQTT_PORT 1883
