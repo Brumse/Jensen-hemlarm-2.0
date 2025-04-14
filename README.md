@@ -1,6 +1,6 @@
 # Raspberry Pi Pico W WiFi Setup (C++)
 
-Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till ett WiFi-nätverk med C++.
+Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till ett WiFi-nätverk och skicka mätvärden via mqtt till en broker (raspberry Zero) med C++.
 
 ## Beroenden
 
@@ -12,12 +12,12 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 
 1.  **Klona repot:**
 
-    ```bash
+```bash
     git clone [repo-länk]
-    ```
+```
 
 2.  **Skapa headerfil med WiFi-uppgifter:**
-    ```bash
+```bash
     cat > include/wifi_credentials.h << EOF
     #pragma once
     #include <string>
@@ -25,40 +25,40 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
     const std::string WIFI_SSID = "change to your SSID";
     const std::string WIFI_PASSWORD = "change to your WiFi password";
     EOF
-    ```
+```
 
     **Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
     
     **Var försiktig med att inte lägga upp denna fil på ett publikt git repo!**.
 
 3.  **Konfigurera CMake:**
-    ```bash
+```bash
     cmake -B build
-    ```
+```
 
 4.  **Bygg projektet med Make:**
 
-    ```bash
+```bash
     make -C build
-    ```
-
+```
     Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
-5.  **Bootload Pico W:**
+5. Koppla enligt schema 
+```bash 
+    lägg in en bild här!!
+```
+
+6.  **Bootload Pico W:**
 
     Sätt din Pico W i bootload-läge genom att hålla ner BOOTSEL-knappen och ansluta den till din dator. Kopiera eller flytta `.uf2`-filen till Pico W.
 
+om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
+```bash
+    lägg in repo här 
+```
 
-6. Kör igång minicom för att lyssna på din device
-```bash
-    minicom -D /dev/ttyACM0 -b 115200
-```
-    kolla upp vad din device heter och byt ut mot ttyACM0 (som min heter)
-    prova att koppla in picon och kör nedan kommando och dra ur den och kör den igen för att lokalisera din device.
-```bash
-    ls /dev
-```
-7. SSH:a in i din rasp zero och installera mosquitto och mosquitto client
+7. **SSH:a in i din rasp zero och installera mosquitto och mosquitto client**
+    
 ```bash 
     sudo apt install mosquitto mosquitto-clients -y
 ``` 
