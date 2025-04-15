@@ -71,13 +71,20 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
     allow_anonymous true
     listener 1883 0.0.0.0
 ```
-9. kör en subscribe på ämnet
+9. kör en subscribe på ämnet, visar att det är larm
+    bygg vidare på denna så även info om enhet skickas med.. 
+
+```bash 
+    mosquitto_sub -t /motion/alarm
+```
+10. kör en till sub via ett annat terminalfönster, visar distancen vid larm 
+```bash
+    mosquitto_sub -t /motion/distance
+```
+11. kör en tredje sub via nytt fönster, visar en indikation om picon förlorar ström / går offline..
 ```bash 
     mosquitto_sub -t /alarm/offline -v
-```
-10. kör en till sub via ett annat terminalfönster 
-```bash
-    mosquitto_sub -t /messagepub -q 2
+
 ```
 ## Felhantering
 

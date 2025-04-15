@@ -178,12 +178,22 @@ static void publish_worker_fn(async_context_t *context,
 
       #ifdef i2c_default
         char distance_str[20];
-        char alarm_str[30];
-        lcd_set_cursor(0, 0);
+       	char alarm_str[30];
+       
+	//clear screen
+       	lcd_set_cursor(0, 0);
+	lcd_string("                "); 
 
-	snprintf(distance_str, sizeof(distance_str), "Dist: %.0f cm", distance);
-        lcd_string(distance_str);
-        lcd_set_cursor(1, 0);
+
+	snprintf(distance_str, sizeof(distance_str), "Distance: %.0f cm", distance);
+        lcd_set_cursor(0,0);
+	lcd_string(distance_str);
+	
+	//clear screen
+	lcd_set_cursor(1, 0);
+	lcd_string("                ");
+
+	lcd_set_cursor(1,0);
         lcd_string(alarm_triggered ? "---ALARM---" : "             ");
     #endif
 
@@ -191,7 +201,7 @@ static void publish_worker_fn(async_context_t *context,
 
      // Publicera endast via MQTT om larmet har triggats
     if (alarm_triggered) {
-	snprintf(msg, sizeof(msg), "Distance : %.2f}", distance);
+	snprintf(msg, sizeof(msg), "Distance : %.2f", distance);
         mqtt_publish(state->mqtt_client, "/motion/distance", msg, strlen(msg),
                      MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
 
@@ -234,7 +244,7 @@ int main(void) {
 	bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
     	lcd_init();
     	lcd_clear(); // Rensa skärmen vid start
-	lcd_string("Conneting to WiFi");
+	lcd_string("Conn to WiFi..");
 #endif
 
   if (cyw43_arch_init()) {
@@ -251,7 +261,8 @@ int main(void) {
   	lcd_clear();
 	lcd_string("WiFi connected!");
 	lcd_set_cursor(1, 0);
-	lcd_string("Connecting to MQTT");
+	lcd_string("Conn to MQTT...");
+	sleep_ms(1000);
 #endif
   // Setup mqtt client info
 
@@ -278,6 +289,8 @@ int main(void) {
 #ifdef i2c_default
 	lcd_clear();
 	lcd_string("MQTT Connected!");
+	sleep_ms(1000);
+	lcd_string("                     "); 
 #endif
 
 
