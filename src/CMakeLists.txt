@@ -1,4 +1,4 @@
-add_executable(mqttmain motiontest.cpp lcd_printer.cpp)
+add_executable(mqttmain mqttmain.cpp lcd_printer.cpp)
 set_target_properties(mqttmain PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

@@ -13,8 +13,6 @@ include(pico_sdk_import.cmake)
 
 project(pico_w_mqtt LANGUAGES C CXX ASM)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 pico_sdk_init()
 
 add_subdirectory(src)

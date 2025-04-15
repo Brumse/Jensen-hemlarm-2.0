@@ -15,7 +15,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "wifi_credentials.h"
-
+#include "hardware/i2c.h"
+#include "lcd_printer.h"
+#include "pico/binary_info.h"
 
 #define _MQTT_BROKER_IP "192.168.1.140"
 #define _MQTT_PORT 1883
@@ -55,6 +57,41 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg,
 static void pub_request_cb(void *arg, err_t err);
 static void publish_worker_fn(async_context_t *context,
                               async_at_time_worker_t *worker);
+
+//motion sensor pins and functions..
+const uint TRIG_PIN = 2;
+const uint ECHO_PIN = 3;
+const uint LED_PIN = 15;
+
+// set threshold for alarm
+const float ALARM_THRESHOLD = 10.0f;
+void trigger_pulse()
+{
+        gpio_put(TRIG_PIN, 0);
+        sleep_us(5);
+        gpio_put(TRIG_PIN, 1);
+        sleep_us(10);
+        gpio_put(TRIG_PIN,0);
+}
+
+float get_distance()
+{
+    trigger_pulse();
+
+    // Wait for echo pulse
+    while(gpio_get(ECHO_PIN) == 0) tight_loop_contents();
+    absolute_time_t start_time = get_absolute_time();
+
+    while(gpio_get(ECHO_PIN) == 1) tight_loop_contents();
+    absolute_time_t end_time = get_absolute_time();
+
+    // Calculate duration in microseconds
+    int64_t pulse_duration = absolute_time_diff_us(start_time, end_time);
+    return (pulse_duration * 0.0343) / 2;
+}
+
+
+
 
 // Global objects
 /**
@@ -136,23 +173,69 @@ static void publish_worker_fn(async_context_t *context,
                               async_at_time_worker_t *worker) {
   mqtt_client_data_t *state = (mqtt_client_data_t *)worker->user_data;
   char msg[32] ={0};
-  snprintf(msg, sizeof(msg), "Msgs: %d", ++(state->published_messages));
-  mqtt_publish(state->mqtt_client, state->topic, msg, strlen(msg),
-               MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+  float distance = get_distance();
+  bool alarm_triggered = (distance < ALARM_THRESHOLD);
 
-  async_context_add_at_time_worker_in_ms(context, worker, 1000);
+      #ifdef i2c_default
+        char distance_str[20];
+        char alarm_str[30];
+        lcd_set_cursor(0, 0);
+
+	snprintf(distance_str, sizeof(distance_str), "Dist: %.0f cm", distance);
+        lcd_string(distance_str);
+        lcd_set_cursor(1, 0);
+        lcd_string(alarm_triggered ? "---ALARM---" : "             ");
+    #endif
+
+	gpio_put(LED_PIN,alarm_triggered);
+
+     // Publicera endast via MQTT om larmet har triggats
+    if (alarm_triggered) {
+	snprintf(msg, sizeof(msg), "Distance : %.2f}", distance);
+        mqtt_publish(state->mqtt_client, "/motion/distance", msg, strlen(msg),
+                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+
+        snprintf(msg, sizeof(msg), "--Alarm-- "); 
+        mqtt_publish(state->mqtt_client, "/motion/alarm", msg, strlen(msg),
+                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+    } 
+
+  
+ 	 async_context_add_at_time_worker_in_ms(context, worker, 1000);
 }
 
 /**
  * @brief Good old main
  */
 int main(void) {
-      
-  stdio_init_all();
+	//unplugging stabalizer
+	sleep_ms(1000);      
 
-  //adding delay yo connect to minicom..
-  sleep_ms(3000);
-  printf("Initializing Pico W...");
+      	stdio_init_all();
+  	printf("Initializing Pico W...");
+//sensor and lcd init
+//
+        // initilize GPIO-pins
+        gpio_init(TRIG_PIN);
+        gpio_set_dir(TRIG_PIN, GPIO_OUT);
+        gpio_init(ECHO_PIN);
+        gpio_set_dir(ECHO_PIN, GPIO_IN);
+        gpio_init(LED_PIN);
+        gpio_set_dir(LED_PIN, GPIO_OUT);
+    
+	
+// Initiera I2C och LCD
+#ifdef i2c_default
+	i2c_init(i2c_default, 100 * 1000);
+	gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
+	gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
+	gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
+	gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
+	bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
+    	lcd_init();
+    	lcd_clear(); // Rensa skärmen vid start
+	lcd_string("Conneting to WiFi");
+#endif
 
   if (cyw43_arch_init()) {
     panic("Failed to initialize CYW43");
@@ -164,7 +247,12 @@ int main(void) {
                                          CYW43_AUTH_WPA2_AES_PSK, 30000)) {
     panic("Failed to Connect");
   }
-
+#ifdef i2c_default
+  	lcd_clear();
+	lcd_string("WiFi connected!");
+	lcd_set_cursor(1, 0);
+	lcd_string("Connecting to MQTT");
+#endif
   // Setup mqtt client info
 
   static mqtt_client_data_t state;
@@ -172,8 +260,6 @@ int main(void) {
     panic("Could not convert broker IP");
   }
   state.mqtt_server_port = _MQTT_PORT;
-  strcpy(state.topic, "/messagepub");
-
 
   static const char* will_topic = "/alarm/offline";
   static const char* will_msg = "pico w Offline!!";
@@ -189,6 +275,11 @@ int main(void) {
 
   // Setup the mqtt client and start the mqtt cycle
   start_client(&state);
+#ifdef i2c_default
+	lcd_clear();
+	lcd_string("MQTT Connected!");
+#endif
+
 
   // Main loop to wait for workers to do job
   while (!state.connect_done || mqtt_client_is_connected(state.mqtt_client)) {
