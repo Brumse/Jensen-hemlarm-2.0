@@ -49,6 +49,14 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 #endif
 EOF
 ```
+Om pin 2,3,15 är upptagen så korrigera även headern sensor_config.h till PINS du vill använda, threshold går även att korrigeras där.
+
+const uint TRIG_PIN = 2; 
+const uint ECHO_PIN = 3;
+const uint LED_PIN = 15;
+
+// set threshold for alarm
+const float ALARM_THRESHOLD = 10.0f;
 
 
 
