@@ -19,6 +19,8 @@
 #include "lcd_printer.h"
 #include "pico/binary_info.h"
 #include "mqtt_config.h"
+#include "sensor_config.h"
+
 // Custom struct definitions
 
 /**
@@ -42,13 +44,6 @@ static void pub_request_cb(void *arg, err_t err);
 static void publish_worker_fn(async_context_t *context,
                               async_at_time_worker_t *worker);
 
-//motion sensor pins and functions..
-const uint TRIG_PIN = 2;
-const uint ECHO_PIN = 3;
-const uint LED_PIN = 15;
-
-// set threshold for alarm
-const float ALARM_THRESHOLD = 10.0f;
 void trigger_pulse()
 {
         gpio_put(TRIG_PIN, 0);
