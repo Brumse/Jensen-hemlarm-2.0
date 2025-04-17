@@ -26,6 +26,31 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
     const std::string WIFI_PASSWORD = "change to your WiFi password";
     EOF
 ```
+    lägg till mqtt config med IP för raspberry zero
+``bash
+    cat > include/mqtt_config.h << EOF
+#pragma once
+
+
+#define _MQTT_BROKER_IP "change Rapberry Zero IP-adress"
+#define _MQTT_PORT 1883
+#define MQTT_TOPIC_LEN 100
+#define MQTT_SUBSCRIBE_QOS 1
+#define MQTT_PUBLISH_QOS 2 //changed to QOS 2 to make sure we get all messages
+#define MQTT_PUBLISH_RETAIN 0
+
+/*
+#define MQTT_WILL_TOPIC "/online"
+#define MQTT_WILL_MSG "0"
+#define MQTT_WILL_QOS 1
+*/
+#ifndef MQTT_DEVICE_NAME
+#define MQTT_DEVICE_NAME "pico" // change name on your device if you want..
+#endif
+EOF
+```
+
+
 
     **Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
     
@@ -54,7 +79,7 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 
 om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 ```bash
-    lägg in repo här 
+    https://github.com/Brumse/RaspberryZero
 ```
 
 7. **SSH:a in i din rasp zero och installera mosquitto och mosquitto client**

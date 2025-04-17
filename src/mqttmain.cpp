@@ -18,23 +18,7 @@
 #include "hardware/i2c.h"
 #include "lcd_printer.h"
 #include "pico/binary_info.h"
-
-#define _MQTT_BROKER_IP "192.168.1.140"
-#define _MQTT_PORT 1883
-#define MQTT_TOPIC_LEN 100
-#define MQTT_SUBSCRIBE_QOS 1
-#define MQTT_PUBLISH_QOS 2 //changed to QOS 2 to make sure we get all messages
-#define MQTT_PUBLISH_RETAIN 0
-
-/*
-#define MQTT_WILL_TOPIC "/online"
-#define MQTT_WILL_MSG "0"
-#define MQTT_WILL_QOS 1
-*/
-#ifndef MQTT_DEVICE_NAME
-#define MQTT_DEVICE_NAME "pico"
-#endif
-
+#include "mqtt_config.h"
 // Custom struct definitions
 
 /**
