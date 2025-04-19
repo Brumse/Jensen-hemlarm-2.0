@@ -126,17 +126,21 @@ void publish_worker_fn(async_context_t *context,
         gpio_put(LED_PIN,alarm_triggered);
 
      // Publicera endast via MQTT om larmet har triggats
-    if (alarm_triggered) {
-        snprintf(msg, sizeof(msg), "Distance : %.2f", distance);
-        mqtt_publish(state->mqtt_client, "/motion/distance", msg, strlen(msg),
-                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+    if (alarm_triggered != state->alarm_active) {
+        if(alarm_triggered){
+	  snprintf(msg, sizeof(msg), "Distance : %.2f", distance);
+          mqtt_publish(state->mqtt_client, "/motion/distance", msg, strlen(msg),
+                       MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
 
         snprintf(msg, sizeof(msg), "--Alarm-- ");
-        mqtt_publish(state->mqtt_client, "/motion/alarm", msg, strlen(msg),
-                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+    }else{
+	snprintf(msg, sizeof(msg),"--Alarm cleared--");
     }
 
-
+	mqtt_publish(state->mqtt_client, "/motion/alarm", msg, strlen(msg),
+                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+    state->alarm_active =alarm_triggered;
+    }
          async_context_add_at_time_worker_in_ms(context, worker, 1000);
-}
 
+}

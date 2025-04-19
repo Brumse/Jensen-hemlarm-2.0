@@ -77,6 +77,7 @@ int main(void) {
   // Setup mqtt client info
 
   static mqtt_client_data_t state;
+  state.alarm_active =false;
   if (!ipaddr_aton(_MQTT_BROKER_IP, &state.mqtt_server_address)) {
     panic("Could not convert broker IP");
   }

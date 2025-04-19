@@ -11,6 +11,7 @@ typedef struct {
   char topic[MQTT_TOPIC_LEN];                         ///< Topic to publish to
   bool connect_done;                                  ///< Status of connection
   int published_messages; ///< Simple pay load used when publishing
+  bool alarm_active; ///<Track if alarm is currently active
 } mqtt_client_data_t;
 
 
