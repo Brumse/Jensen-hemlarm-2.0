@@ -13,3 +13,4 @@ typedef struct {
   int published_messages; ///< Simple pay load used when publishing
 } mqtt_client_data_t;
 
+
