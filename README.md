@@ -1,4 +1,4 @@
-# Raspberry Pi Pico W WiFi Setup (C++)
+# Jensen Hemlarm 2.0 (C/C++)
 
 Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till ett WiFi-nätverk och skicka mätvärden via mqtt till en broker (raspberry Zero) med C++.
 
@@ -13,7 +13,7 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 1.  **Klona repot:**
 
 ```bash
-    git clone [repo-länk]
+    git clone https://github.com/Brumse/Jensen-hemlarm-2.0.git
 ```
 
 2.  **Skapa headerfil med WiFi-uppgifter:**
