@@ -77,11 +77,10 @@ const float ALARM_THRESHOLD = 10.0f;
     Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
 5. Koppla enligt schema 
-```bash 
-    lägg in en bild här!!
-```
+![Alt text](https://github.com/Brumse/Jensen-hemlarm-2.0/blob/main/images/lcd-motion-mqtt.png?raw=true "Title")
 
-6.  **Bootload Pico W:**
+
+7.  **Bootload Pico W:**
 
     Sätt din Pico W i bootload-läge genom att hålla ner BOOTSEL-knappen och ansluta den till din dator. Kopiera eller flytta `.uf2`-filen till Pico W.
 
