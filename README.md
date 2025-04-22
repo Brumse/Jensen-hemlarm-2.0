@@ -27,7 +27,7 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
     EOF
 ```
     lägg till mqtt config med IP för raspberry zero
-``bash
+```bash
     cat > include/mqtt_config.h << EOF
 #pragma once
 
