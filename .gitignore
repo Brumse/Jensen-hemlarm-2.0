@@ -1,0 +1,8 @@
+/build
+.idea/
+*.swp
+include/wifi_credentials.h
+include/mqtt_config.h
+*.swo
+wifi_credentials.h
+mqtt_config.h
