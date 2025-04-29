@@ -125,7 +125,7 @@ void pub_request_cb(void *arg, err_t err) {
 void publish_worker_fn(async_context_t *context,
                               async_at_time_worker_t *worker) {
   mqtt_client_data_t *state = (mqtt_client_data_t *)worker->user_data;
-  char msg[32] ={0};
+  char msg[125] ={0};
   float distance = get_distance();
   bool alarm_triggered = (distance < ALARM_THRESHOLD);
 
@@ -151,22 +151,18 @@ void publish_worker_fn(async_context_t *context,
     #endif
 
         gpio_put(LED_PIN,alarm_triggered);
-
+		
      // Publish to MQTT if alarm is triggered
     if (alarm_triggered != state->alarm_active) {
-        if(alarm_triggered){
-	  snprintf(msg, sizeof(msg), "Distance : %.2f", distance);
+   
+    state->alarm_active =alarm_triggered;
+       
+	  snprintf(msg, sizeof(msg),"{\"device\": \"%s\", \"alarm_active\": %s, \"distance\": %.2f}",
+			  MQTT_DEVICE_NAME,
+			  state->alarm_active? "true" : "false",
+			  distance);
           mqtt_publish(state->mqtt_client, "/motion/distance", msg, strlen(msg),
                        MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
-
-        snprintf(msg, sizeof(msg), "--Alarm-- ");
-    }else{
-	snprintf(msg, sizeof(msg),"--Alarm cleared--");
-    }
-
-	mqtt_publish(state->mqtt_client, "/motion/alarm", msg, strlen(msg),
-                     MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
-    state->alarm_active =alarm_triggered;
     }
          async_context_add_at_time_worker_in_ms(context, worker, 1000);
 
