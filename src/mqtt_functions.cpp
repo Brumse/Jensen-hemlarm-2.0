@@ -60,8 +60,35 @@ void mqtt_connection_cb(mqtt_client_t *client, void *arg,
                                mqtt_connection_status_t status) {
   mqtt_client_data_t *state = (mqtt_client_data_t *)arg; // Cast user data
   if (status == MQTT_CONNECT_ACCEPTED) {
+
+	  printf("MQTT connection failed\n");//debugging print
     state->connect_done = true;
     state->published_messages = 0;
+
+
+        const char* online_topic = "/alarm/status"; //online subject
+        const char* online_msg = "{online}";  // online message
+        err_t err;
+
+	printf("Trying to publish online-status to %s \n", online_topic);
+
+	        cyw43_arch_lwip_begin();
+        err = mqtt_publish(state->mqtt_client,      // MQTT-Client
+                           online_topic,            // subject
+                           online_msg,              // Message-payload
+                           strlen(online_msg),      // length of payload
+                           MQTT_PUBLISH_QOS,        // QoS
+                           0,                       // Retain flag (0 = send now)
+                           pub_request_cb,          // Callback confirmation
+                           state);                  // Argument to callback
+        cyw43_arch_lwip_end();
+
+        if (err != ERR_OK) {
+            printf("Failed to publish online-status. Errorcode: %d\n", err);
+        } else {
+            printf("Online-status published!\n");
+        }
+
 
     // Start publish worker
     publish_worker.user_data = state;
@@ -125,7 +152,7 @@ void publish_worker_fn(async_context_t *context,
 
         gpio_put(LED_PIN,alarm_triggered);
 
-     // Publicera endast via MQTT om larmet har triggats
+     // Publish to MQTT if alarm is triggered
     if (alarm_triggered != state->alarm_active) {
         if(alarm_triggered){
 	  snprintf(msg, sizeof(msg), "Distance : %.2f", distance);

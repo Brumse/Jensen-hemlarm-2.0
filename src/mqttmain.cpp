@@ -20,16 +20,16 @@
 #include "mqtt_functions.h"
 
 //------------------MOVE TO HEADER LATER---------------------------
-#include <string.h>
-#include <time.h>
+//#include <string.h>
+//#include <time.h>
 //#include "pico/stdlib.h"
 //#include "pico/cyw43_arch.h"
-#include "lwip/dns.h"
-#include "lwip/pbuf.h"
-#include "lwip/udp.h"
+//#include "lwip/dns.h"
+//#include "lwip/pbuf.h"
+//#include "lwip/udp.h"
 //#include "wifi_credentials.h"
-#include "pico/time.h"
-
+//#include "pico/time.h"
+/*
 typedef struct NTP_T_ {
     ip_addr_t ntp_server_address;
     bool dns_request_sent;
@@ -55,7 +55,7 @@ static void ntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *a
 static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
 static NTP_T* ntp_init(void);
 void ntp_periodic_check(void);
-
+*/
 /**
  * @brief Good old main
  */
@@ -116,7 +116,7 @@ int main(void) {
   state.mqtt_server_port = _MQTT_PORT;
 
   static const char* will_topic = "/alarm/offline";
-  static const char* will_msg = "pico w Offline!!";
+  static const char* will_msg = "{offline}";
 
   state.mqtt_client_info.client_id = "pico_w";
   state.mqtt_client_info.keep_alive = 10;
@@ -136,27 +136,27 @@ int main(void) {
 	lcd_string("                     "); 
 #endif
  //init NTP
-  ntp_state=ntp_init();
+ // ntp_state=ntp_init();
 
   // Main loop to wait for workers to do job
   while (!state.connect_done || mqtt_client_is_connected(state.mqtt_client)) {
     cyw43_arch_poll();
     cyw43_arch_wait_for_work_until(make_timeout_time_ms(10000));
   
-    ntp_periodic_check();
+   // ntp_periodic_check();
   }
   printf("Done, exiting...");
-  if(ntp_state){
+  /*if(ntp_state){
   	udp_remove(ntp_state->ntp_pcb); 
 	free(ntp_state);
         ntp_state = NULL;
-  }
+  }*/
   return 0;
 }
 
 //---------------------------------------------END OF MAIN------------------------------------------------------
 //-------------------------------------------MOVE TO OWN CPP----------------------------------------------------
-
+/*
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     printf("NTP Result: %s", status == 0 ? "Success" : "Failed");
@@ -282,4 +282,4 @@ void ntp_periodic_check(void) {
         cyw43_arch_poll();
 #endif
     }
-}
+}*/
