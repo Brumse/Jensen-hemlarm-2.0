@@ -108,7 +108,7 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
     bygg vidare på denna så även info om enhet skickas med.. 
 
 ```bash 
-    mosquitto_sub -t /motion/alarm
+    mosquitto_sub -t /alarm/status
 ```
 10. kör en till sub via ett annat terminalfönster, visar distancen vid larm 
 ```bash
@@ -116,8 +116,7 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 ```
 11. kör en tredje sub via nytt fönster, visar en indikation om picon förlorar ström / går offline..
 ```bash 
-    mosquitto_sub -t /alarm/offline -v
-
+    mosquitto_sub -t /alarm/offline
 ```
 ## Felhantering
 
