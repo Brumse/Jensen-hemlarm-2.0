@@ -107,6 +107,13 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 9. kör en subscribe på ämnet, visar att det är larm
     bygg vidare på denna så även info om enhet skickas med.. 
 
+
+säkerställ att dessa är isntallerad på zeron
+```bash
+    sudo apt install libmosquitto-dev
+    sudo apt install libjansson-dev libcurl4-openssl-dev
+```
+
 ```bash 
     mosquitto_sub -t /alarm/status
 ```

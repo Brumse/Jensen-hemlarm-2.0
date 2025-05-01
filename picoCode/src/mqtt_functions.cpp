@@ -67,7 +67,11 @@ void mqtt_connection_cb(mqtt_client_t *client, void *arg,
 
 
         const char* online_topic = "/alarm/status"; //online subject
-        const char* online_msg = "{online}";  // online message
+	char online_msg_buffer[128];
+	snprintf(online_msg_buffer, sizeof(online_msg_buffer),
+		 "{\"device_id\": \"%s\", \"name\": \"%s\", \"status\": \"online\"}",
+                 MQTT_DEVICE_NAME, MQTT_DEVICE_NAME);
+        char* online_msg = online_msg_buffer;  // online message
         err_t err;
 
 	printf("Trying to publish online-status to %s \n", online_topic);

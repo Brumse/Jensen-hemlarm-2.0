@@ -1,8 +1,13 @@
 /build
+/zeroCode/build
+/picoCode/build
 .idea/
 *.swp
 include/wifi_credentials.h
+/picoCode/include/wifi_credentials.h
 include/mqtt_config.h
+/picoCode/include/mqtt_config.h
 *.swo
 wifi_credentials.h
 mqtt_config.h
+/zeroCode/include/config.h
