@@ -7,6 +7,36 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 * Raspberry Pi Pico SDK
 * CMake
 * Make
+## Arkitekturschema
+```mermaid
+graph TD
+    subgraph "💡 Rörelsedetektor"
+        A[Pico W<br/>C/C++]
+        A -->|Ultraljudssensor<br/>mäter avstånd| B[Sensorvärde]
+    end
+
+    subgraph "📦 FOG-enhet "
+        C[Pi Zero 2 W <Br/> MQTT Broker]
+        B -->|MQTT / WiFi| C
+        C -->|Skicka SMS| G[SMS-Tjänst]
+    end
+    subgraph " Backend "
+        D[Flask Server<Br/>API]
+        C -->|HTTP POST / MQTT| D
+        
+    end
+
+    subgraph "🗄️ Databas"
+        E[(SQL Database)]
+        D -->|Spara data| E
+    end
+
+    subgraph "🌍 Webapp"
+        F[Next.js Frontend]
+        F -->|GET devices / logs| D
+    end
+```
+
 
 ## Installation
 
