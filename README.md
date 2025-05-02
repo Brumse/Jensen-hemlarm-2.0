@@ -56,7 +56,7 @@ graph TD
     const std::string WIFI_PASSWORD = "change to your WiFi password";
     EOF
 ```
-    lägg till mqtt config med IP för raspberry zero
+**Lägg till mqtt config med IP för raspberry zero**
 ```bash
     cat > include/mqtt_config.h << EOF
 #pragma once
@@ -80,19 +80,19 @@ graph TD
 EOF
 ```
 Om pin 2,3,15 är upptagen så korrigera även headern sensor_config.h till PINS du vill använda, threshold går även att korrigeras där.
-
+```bash
 const uint TRIG_PIN = 2; 
 const uint ECHO_PIN = 3;
 const uint LED_PIN = 15;
 
 // set threshold for alarm
 const float ALARM_THRESHOLD = 10.0f;
+````
 
 
-
-    **Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
+**Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
     
-    **Var försiktig med att inte lägga upp denna fil på ett publikt git repo!**.
+**Var försiktig med att inte lägga upp denna fil på ett publikt git repo!**.
 
 3.  **Konfigurera CMake:**
 ```bash
@@ -104,7 +104,7 @@ const float ALARM_THRESHOLD = 10.0f;
 ```bash
     make -C build
 ```
-    Den kompilerade `.uf2`-filen skapas i `build/bin`.
+Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
 5. Koppla enligt schema 
 ![Alt text](https://github.com/Brumse/Jensen-hemlarm-2.0/blob/main/images/lcd-motion-mqtt.png?raw=true "Title")
@@ -128,7 +128,7 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 ```bash
     sudo vim /etc/mosquitto/mosquitto.conf
 ```
-    lägg in detta längst ner i filen:
+lägg in detta längst ner i filen:
 ```bash 
     allow_anonymous true
     listener 1883 0.0.0.0
