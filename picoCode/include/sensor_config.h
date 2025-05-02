@@ -3,8 +3,8 @@
 #include <stdio.h>
 /*
 NOTES for adding functions:
-	add arlarmsound when trigger alarm.
-	add button to reset alarm.
+        add arlarmsound when trigger alarm.
+        add button to reset alarm.
 */
 
 const uint TRIG_PIN = 2;
@@ -13,6 +13,3 @@ const uint LED_PIN = 15;
 
 // set threshold for alarm
 const float ALARM_THRESHOLD = 10.0f;
-
-
-

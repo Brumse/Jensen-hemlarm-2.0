@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-#include "pico/stdlib.h"
+#include "lcd_printer.h"
 #include "hardware/i2c.h"
 #include "pico/binary_info.h"
-#include "lcd_printer.h"
+#include "pico/stdlib.h"
+#include <stdio.h>
+#include <string.h>
 /*
 
    NOTE: The panel must be capable of being driven at 3.3v NOT 5v. The Pico
@@ -48,9 +48,7 @@ void lcd_send_byte(uint8_t val, int mode) {
     lcd_toggle_enable(low);
 }
 
-void lcd_clear(void) {
-    lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND);
-}
+void lcd_clear(void) { lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND); }
 
 // go to location on LCD
 void lcd_set_cursor(int line, int position) {
@@ -58,9 +56,7 @@ void lcd_set_cursor(int line, int position) {
     lcd_send_byte(val, LCD_COMMAND);
 }
 
-static inline void lcd_char(char val) {
-    lcd_send_byte(val, LCD_CHARACTER);
-}
+static inline void lcd_char(char val) { lcd_send_byte(val, LCD_CHARACTER); }
 
 void lcd_string(const char *s) {
     while (*s) {

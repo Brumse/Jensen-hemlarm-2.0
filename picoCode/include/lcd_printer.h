@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdio.h>
-#include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "pico/stdlib.h"
+#include <stdio.h>
 
 // commands
 const int LCD_CLEARDISPLAY = 0x01;
@@ -38,14 +38,14 @@ const int LCD_BACKLIGHT = 0x08;
 const int LCD_ENABLE_BIT = 0x04;
 
 // By default these LCD display drivers are on bus address 0x27
-static int addr = 0x3F;//or 63
+static int addr = 0x3F; // or 63
 
 // Modes for lcd_send_byte
-#define LCD_CHARACTER  1
-#define LCD_COMMAND    0
+#define LCD_CHARACTER 1
+#define LCD_COMMAND 0
 
-#define MAX_LINES      2
-#define MAX_CHARS      16
+#define MAX_LINES 2
+#define MAX_CHARS 16
 
 /* Quick helper function for single byte transfers */
 void i2c_write_byte(uint8_t val);
