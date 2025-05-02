@@ -18,7 +18,7 @@ graph TD
     subgraph "📦 FOG-enhet "
         C[Pi Zero 2 W <Br/> MQTT Broker]
         B -->|MQTT / WiFi| C
-        C -->|Skicka SMS| G[SMS-Tjänst]
+        C -->|Skicka notis| G[Notis-Tjänst]
     end
     subgraph " Backend "
         D[Flask Server<Br/>API]
