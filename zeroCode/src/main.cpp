@@ -71,25 +71,7 @@ CURLcode send_http_post(const char *url, const char *payload,
     curl_global_cleanup();
     return res;
 }
-/*
-void register_device() {
-    char register_url[256];
-    snprintf(register_url, sizeof(register_url), "%s/register_device",
-API_BASE_URL); char* payload = build_json_payload(DEVICE_ID, "name",
-DEVICE_NAME); struct MemoryStruct chunk; chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
-    CURLcode res = send_http_post(register_url, payload, &chunk);
-    if (res == CURLE_OK) {
-        long response_code;
-        curl_easy_getinfo(curl_easy_init(), CURLINFO_RESPONSE_CODE,
-&response_code); printf("Device registration successful. Status code: %ld,
-Response: %s\n", response_code, chunk.memory); } else { fprintf(stderr, "Device
-registration failed: %s\n", curl_easy_strerror(res));
-    }
-    free(payload);
-    free(chunk.memory);
-}
-*/
+
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == MOSQ_ERR_SUCCESS) {
         printf("Connected to MQTT Broker!\n");
@@ -153,12 +135,9 @@ void on_message(struct mosquitto *mosq, void *userdata,
             free(chunk.memory);
             json_decref(will_root);
 
-            // Viktigt: Avbryt funktionen här eftersom vi har hanterat
-            // offline-statusen.
             return;
         }
 
-        // Hantera meddelanden från /motion/distance topicet som tidigare
         json_error_t error;
         json_t *root = json_loads((char *)msg->payload, 0, &error);
 
@@ -219,9 +198,6 @@ int main() {
     time_t timestamp;
     time(&timestamp);
     printf("Current time is: %s", ctime(&timestamp));
-
-    // Register the device with the API
-    // register_device();
 
     struct mosquitto *mosq = mosquitto_new(NULL, true, NULL);
     if (!mosq) {
