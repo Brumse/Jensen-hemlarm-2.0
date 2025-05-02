@@ -1,4 +1,4 @@
-# Raspberry Pi Pico W WiFi Setup (C++)
+# Jensen Hemlarm 2.0 (C/C++)
 
 Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till ett WiFi-nätverk och skicka mätvärden via mqtt till en broker (raspberry Zero) med C++.
 
@@ -7,13 +7,43 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 * Raspberry Pi Pico SDK
 * CMake
 * Make
+## Arkitekturschema
+```mermaid
+graph TD
+    subgraph "💡 Rörelsedetektor"
+        A[Pico W<br/>C/C++]
+        A -->|Ultraljudssensor<br/>mäter avstånd| B[Sensorvärde]
+    end
+
+    subgraph "📦 FOG-enhet "
+        C[Pi Zero 2 W <Br/> MQTT Broker]
+        B -->|MQTT / WiFi| C
+        C -->|Skicka notis| G[Notis-Tjänst]
+    end
+    subgraph " Backend "
+        D[Flask Server<Br/>API]
+        C -->|HTTP POST / MQTT| D
+        
+    end
+
+    subgraph "🗄️ Databas"
+        E[(SQL Database)]
+        D -->|Spara data| E
+    end
+
+    subgraph "🌍 Webapp"
+        F[Next.js Frontend]
+        F -->|GET devices / logs| D
+    end
+```
+
 
 ## Installation
 
 1.  **Klona repot:**
 
 ```bash
-    git clone [repo-länk]
+    git clone https://github.com/Brumse/Jensen-hemlarm-2.0.git
 ```
 
 2.  **Skapa headerfil med WiFi-uppgifter:**
@@ -26,8 +56,8 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
     const std::string WIFI_PASSWORD = "change to your WiFi password";
     EOF
 ```
-    lägg till mqtt config med IP för raspberry zero
-``bash
+**Lägg till mqtt config med IP för raspberry zero**
+```bash
     cat > include/mqtt_config.h << EOF
 #pragma once
 
@@ -50,19 +80,19 @@ Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till
 EOF
 ```
 Om pin 2,3,15 är upptagen så korrigera även headern sensor_config.h till PINS du vill använda, threshold går även att korrigeras där.
-
+```bash
 const uint TRIG_PIN = 2; 
 const uint ECHO_PIN = 3;
 const uint LED_PIN = 15;
 
 // set threshold for alarm
 const float ALARM_THRESHOLD = 10.0f;
+````
 
 
-
-    **Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
+**Viktigt:** Byt ut `"change to your SSID"` och `"change to your WiFi password"` med dina faktiska WiFi-uppgifter. 
     
-    **Var försiktig med att inte lägga upp denna fil på ett publikt git repo!**.
+**Var försiktig med att inte lägga upp denna fil på ett publikt git repo!**.
 
 3.  **Konfigurera CMake:**
 ```bash
@@ -74,14 +104,13 @@ const float ALARM_THRESHOLD = 10.0f;
 ```bash
     make -C build
 ```
-    Den kompilerade `.uf2`-filen skapas i `build/bin`.
+Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
 5. Koppla enligt schema 
-```bash 
-    lägg in en bild här!!
-```
+![Alt text](https://github.com/Brumse/Jensen-hemlarm-2.0/blob/main/images/lcd-motion-mqtt.png?raw=true "Title")
 
-6.  **Bootload Pico W:**
+
+7.  **Bootload Pico W:**
 
     Sätt din Pico W i bootload-läge genom att hålla ner BOOTSEL-knappen och ansluta den till din dator. Kopiera eller flytta `.uf2`-filen till Pico W.
 
@@ -99,23 +128,24 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 ```bash
     sudo vim /etc/mosquitto/mosquitto.conf
 ```
-    lägg in detta längst ner i filen:
+lägg in detta längst ner i filen:
 ```bash 
     allow_anonymous true
     listener 1883 0.0.0.0
 ```
-9. kör en subscribe på ämnet, visar att det är larm
-    bygg vidare på denna så även info om enhet skickas med.. 
-
-
-säkerställ att dessa är isntallerad på zeron
+**säkerställ att dessa är installerad på zeron**
 ```bash
     sudo apt install libmosquitto-dev
     sudo apt install libjansson-dev libcurl4-openssl-dev
 ```
 
+
+
+9. kör en subscribe på ämnet, visar att det är larm
+    bygg vidare på denna så även info om enhet skickas med.. 
+
 ```bash 
-    mosquitto_sub -t /alarm/status
+    mosquitto_sub -t /motion/alarm
 ```
 10. kör en till sub via ett annat terminalfönster, visar distancen vid larm 
 ```bash
@@ -123,7 +153,8 @@ säkerställ att dessa är isntallerad på zeron
 ```
 11. kör en tredje sub via nytt fönster, visar en indikation om picon förlorar ström / går offline..
 ```bash 
-    mosquitto_sub -t /alarm/offline
+    mosquitto_sub -t /alarm/offline -v
+
 ```
 ## Felhantering
 
