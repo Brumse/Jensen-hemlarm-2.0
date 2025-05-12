@@ -11,3 +11,4 @@ include/mqtt_config.h
 wifi_credentials.h
 mqtt_config.h
 /zeroCode/include/config.h
+/irtest

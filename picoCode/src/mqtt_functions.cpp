@@ -16,7 +16,7 @@
 #include <pico/time.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "pico/time.h"
 // Global objects
 /**
  * @brief Worker object that does asynchronous work
@@ -128,34 +128,51 @@ void publish_worker_fn(async_context_t *context,
     mqtt_client_data_t *state = (mqtt_client_data_t *)worker->user_data;
     char msg[125] = {0};
     float distance = get_distance();
-    bool alarm_triggered = (distance < ALARM_THRESHOLD);
+    bool current_distance_alarm  = (distance < ALARM_THRESHOLD);
+    static bool alarm_active_latch = false;
+    static uint32_t last_button_press_time = 0;
+    static bool alarm_cleared = false;
+    static uint32_t cleared_message_end_time = 0;
+    const uint32_t CLEAR_MESSAGE_DURATION_MS = 2000;
+    
+    bool clear_button_down = !gpio_get(CLEAR_BUTTON_PIN);
+    uint32_t current_time = time_us_32();
+
+    // Debouncing and reset alarm
+    if (clear_button_down && (current_time - last_button_press_time > 200000)) {
+        alarm_active_latch = false;
+        alarm_cleared = true;
+        cleared_message_end_time = current_time + CLEAR_MESSAGE_DURATION_MS * 1000;
+        last_button_press_time = current_time;
+    } else if (current_distance_alarm) {
+        alarm_active_latch = true;
+        alarm_cleared = false; 
+    }
 
 #ifdef i2c_default
     char distance_str[20];
-    char alarm_str[30];
-
-    // clear screen
-    lcd_set_cursor(0, 0);
-    lcd_string("                ");
-
     snprintf(distance_str, sizeof(distance_str), "Distance: %.0f cm", distance);
     lcd_set_cursor(0, 0);
     lcd_string(distance_str);
 
-    // clear screen
+    // Visa larmstatus
     lcd_set_cursor(1, 0);
-    lcd_string("                ");
-
-    lcd_set_cursor(1, 0);
-    lcd_string(alarm_triggered ? "---ALARM---" : "             ");
+    if (alarm_cleared && current_time < cleared_message_end_time) {
+        lcd_string("---CLEARED---");
+    } else {
+        lcd_string(alarm_active_latch ? "---ALARM---" : "             ");
+        if (!alarm_active_latch) {
+            alarm_cleared = false;
+        }
+    }
 #endif
 
-    gpio_put(LED_PIN, alarm_triggered);
+    gpio_put(LED_PIN, alarm_active_latch);
 
     // Publish to MQTT if alarm is triggered
-    if (alarm_triggered != state->alarm_active) {
+    if (alarm_active_latch != state->alarm_active) {
 
-        state->alarm_active = alarm_triggered;
+        state->alarm_active = alarm_active_latch;
 
         snprintf(
             msg, sizeof(msg),

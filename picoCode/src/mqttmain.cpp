@@ -8,8 +8,8 @@
 #include "hardware/i2c.h"
 #include "lcd_printer.h"
 #include "lwip/apps/mqtt.h"
-#include "mqtt_client_data.h"
 #include "mqtt_config.h"
+#include "mqtt_client_data.h"
 #include "mqtt_functions.h"
 #include "pico/binary_info.h"
 #include "pico/cyw43_arch.h"
@@ -19,6 +19,8 @@
 #include <cstdio>
 #include <lwip/ip4_addr.h>
 #include <pico/time.h>
+
+
 /**
  * @brief Good old main
  */
@@ -29,7 +31,7 @@ int main(void) {
     stdio_init_all();
     printf("Initializing Pico W...");
     // sensor and lcd init
-    //
+    // init button pin
     //  initilize GPIO-pins
     gpio_init(TRIG_PIN);
     gpio_set_dir(TRIG_PIN, GPIO_OUT);
@@ -37,6 +39,10 @@ int main(void) {
     gpio_set_dir(ECHO_PIN, GPIO_IN);
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    gpio_init(CLEAR_BUTTON_PIN);
+    gpio_set_dir(CLEAR_BUTTON_PIN,GPIO_IN);
+    gpio_pull_up(CLEAR_BUTTON_PIN);
 
 // Initiera I2C och LCD
 #ifdef i2c_default
