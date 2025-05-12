@@ -1,6 +1,7 @@
 /build
 /zeroCode/build
 /picoCode/build
+/buzzertest/build
 .idea/
 *.swp
 include/wifi_credentials.h
