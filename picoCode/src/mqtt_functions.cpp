@@ -129,25 +129,32 @@ void publish_worker_fn(async_context_t *context,
     char msg[125] = {0};
     float distance = get_distance();
     bool current_distance_alarm  = (distance < ALARM_THRESHOLD);
+    static bool sensor_alarm_triggered = false;
     static bool alarm_active_latch = false;
+    static bool manual_alarm_triggered = false;
     static uint32_t last_button_press_time = 0;
     static bool alarm_cleared = false;
     static uint32_t cleared_message_end_time = 0;
     const uint32_t CLEAR_MESSAGE_DURATION_MS = 2000;
+    const uint32_t BUTTON_DEBOUNCE_TIME_US = 200000; // 200 ms
     
     bool clear_button_down = !gpio_get(CLEAR_BUTTON_PIN);
     uint32_t current_time = time_us_32();
 
     // Debouncing and reset alarm
-    if (clear_button_down && (current_time - last_button_press_time > 200000)) {
-        alarm_active_latch = false;
-        alarm_cleared = true;
-        cleared_message_end_time = current_time + CLEAR_MESSAGE_DURATION_MS * 1000;
-        last_button_press_time = current_time;
-    } else if (current_distance_alarm) {
-        alarm_active_latch = true;
-        alarm_cleared = false; 
+    if (clear_button_down && (current_time - last_button_press_time > BUTTON_DEBOUNCE_TIME_US)) {
+	last_button_press_time = current_time;
+        manual_alarm_triggered = !manual_alarm_triggered;
+        sensor_alarm_triggered = false; 
+        alarm_cleared = manual_alarm_triggered ? false : true;
+	if (alarm_cleared) {
+            cleared_message_end_time = current_time + CLEAR_MESSAGE_DURATION_MS * 1000;
+        }
+    } else if (current_distance_alarm && !manual_alarm_triggered) {
+	    sensor_alarm_triggered = true;
+	    alarm_cleared = false;
     }
+    alarm_active_latch = sensor_alarm_triggered || manual_alarm_triggered;
 
 #ifdef i2c_default
     char distance_str[20];
@@ -155,7 +162,7 @@ void publish_worker_fn(async_context_t *context,
     lcd_set_cursor(0, 0);
     lcd_string(distance_str);
 
-    // Visa larmstatus
+    // Show alarmstatus
     lcd_set_cursor(1, 0);
     if (alarm_cleared && current_time < cleared_message_end_time) {
         lcd_string("---CLEARED---");
