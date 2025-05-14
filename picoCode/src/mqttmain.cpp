@@ -19,7 +19,8 @@
 #include <cstdio>
 #include <lwip/ip4_addr.h>
 #include <pico/time.h>
-
+#include "melody.h"
+#include "hardware/pwm.h"
 
 /**
  * @brief Good old main
@@ -43,8 +44,12 @@ int main(void) {
     gpio_init(CLEAR_BUTTON_PIN);
     gpio_set_dir(CLEAR_BUTTON_PIN,GPIO_IN);
     gpio_pull_up(CLEAR_BUTTON_PIN);
+    
+    gpio_init(BUZZER_TRIG_PIN);
+    gpio_set_dir(BUZZER_TRIG_PIN, GPIO_OUT);
+    gpio_put(BUZZER_TRIG_PIN, 0);
 
-// Initiera I2C och LCD
+    // Initiera I2C och LCD
 #ifdef i2c_default
     i2c_init(i2c_default, 100 * 1000);
     gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);

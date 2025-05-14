@@ -1,4 +1,10 @@
-add_executable(mqttmain mqttmain.cpp lcd_printer.cpp sensor_functions.cpp mqtt_functions.cpp)
+add_executable(mqttmain 
+	mqttmain.cpp 
+	lcd_printer.cpp
+       	sensor_functions.cpp 
+	mqtt_functions.cpp
+	melody.cpp	
+)
 #add_executable(mqttmain test_ntp.cpp)
 
 set_target_properties(mqttmain PROPERTIES
@@ -11,6 +17,7 @@ target_link_libraries(mqttmain
 	hardware_gpio
 	pico_lwip_mqtt
 	hardware_i2c
+	hardware_pwm
 )
 
 target_include_directories(mqttmain PUBLIC ${CMAKE_SOURCE_DIR}/include)
@@ -24,7 +31,7 @@ add_custom_command(
     TARGET mqttmain
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_BINARY_DIR}/src/mqttmain.uf2" # Antag att .uf2 hamnar direkt i build
+            "${CMAKE_BINARY_DIR}/src/mqttmain.uf2" 
     	    "${CMAKE_BINARY_DIR}/bin/mqttmain.uf2"
     )
 

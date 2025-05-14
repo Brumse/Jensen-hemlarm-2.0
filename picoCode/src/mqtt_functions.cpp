@@ -17,6 +17,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "pico/time.h"
+#include "melody.h"
+#include "hardware/pwm.h"
+
 // Global objects
 /**
  * @brief Worker object that does asynchronous work
@@ -175,6 +178,21 @@ void publish_worker_fn(async_context_t *context,
 #endif
 
     gpio_put(LED_PIN, alarm_active_latch);
+    if (!pwm_initialized) {
+    gpio_set_function(BUZZER_TRIG_PIN, GPIO_FUNC_PWM);
+    slice_num = pwm_gpio_to_slice_num(BUZZER_TRIG_PIN);
+    pwm_set_clkdiv(slice_num, 10.0f);
+    pwm_set_wrap(slice_num, 12500); //frequency in kHz
+    pwm_set_chan_level(slice_num, pwm_gpio_to_channel(BUZZER_TRIG_PIN), 6250); // 50%
+    pwm_initialized = true;
+}
+
+//  set buzzer with PWM
+    if (alarm_active_latch) {
+        pwm_set_enabled(slice_num, true);
+    } else {
+        pwm_set_enabled(slice_num, false);
+    }
 
     // Publish to MQTT if alarm is triggered
     if (alarm_active_latch != state->alarm_active) {
