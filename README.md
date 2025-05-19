@@ -2,8 +2,11 @@
 
 Detta projekt visar hur du ställer in Raspberry Pi Pico W för att ansluta till ett WiFi-nätverk och skicka mätvärden via mqtt till en broker (raspberry Zero) med C++.
 
-## Beroenden
+Är baserad på vårat tidigare pythonprojekt. 
+Se frontend och backend från tidigare pytonrepo:
+https://github.com/PhilipSamuelsson/hemlarm
 
+## Beroenden
 * Raspberry Pi Pico SDK
 * CMake
 * Make
