@@ -1,4 +1,3 @@
-
 #include "sensor_functions.h"
 #include "pico/stdlib.h"
 #include "sensor_config.h"

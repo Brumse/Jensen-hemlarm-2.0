@@ -5,21 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 /*
-
-   NOTE: The panel must be capable of being driven at 3.3v NOT 5v. The Pico
-   GPIO (and therefore I2C) cannot be used at 5v.
-
-   You will need to use a level shifter on the I2C lines if you want to run the
-   board at 5v.
-
-   Connections on Raspberry Pi Pico board, other boards may vary.
-
    GPIO 4 (pin 6)-> SDA on LCD bridge board
    GPIO 5 (pin 7)-> SCL on LCD bridge board
-   3.3v (pin 36) -> VCC on LCD bridge board
+   5 V (VBUS) (pin 40) -> VCC on LCD bridge board
    GND (pin 38)  -> GND on LCD bridge board
 */
-/* Quick helper function for single byte transfers */
+
+// Quick helper function for single byte transfers
 void i2c_write_byte(uint8_t val) {
 #ifdef i2c_default
     i2c_write_blocking(i2c_default, addr, &val, 1, false);
@@ -48,7 +40,9 @@ void lcd_send_byte(uint8_t val, int mode) {
     lcd_toggle_enable(low);
 }
 
-void lcd_clear(void) { lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND); }
+void lcd_clear(void) { 
+	lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND);
+}
 
 // go to location on LCD
 void lcd_set_cursor(int line, int position) {

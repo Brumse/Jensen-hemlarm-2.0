@@ -1,7 +1,7 @@
 #pragma once
+#include "lwip/apps/mqtt.h"
 #include "mqtt_client_data.h"
 #include <pico/async_context.h>
-#include "lwip/apps/mqtt.h"
 
 void start_client(mqtt_client_data_t *state);
 void mqtt_connection_cb(mqtt_client_t *client, void *arg,

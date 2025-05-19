@@ -1,12 +1,15 @@
 #include "mqtt_functions.h"
 #include "hardware/i2c.h"
+#include "hardware/pwm.h"
 #include "lcd_printer.h"
 #include "lwip/apps/mqtt.h"
+#include "melody.h"
 #include "mqtt_client_data.h"
 #include "mqtt_config.h"
 #include "pico/binary_info.h"
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
+#include "pico/time.h"
 #include "sensor_config.h"
 #include "sensor_functions.h"
 #include "wifi_credentials.h"
@@ -16,9 +19,6 @@
 #include <pico/time.h>
 #include <stdio.h>
 #include <string.h>
-#include "pico/time.h"
-#include "melody.h"
-#include "hardware/pwm.h"
 
 // Global objects
 /**
@@ -131,7 +131,7 @@ void publish_worker_fn(async_context_t *context,
     mqtt_client_data_t *state = (mqtt_client_data_t *)worker->user_data;
     char msg[125] = {0};
     float distance = get_distance();
-    bool current_distance_alarm  = (distance < ALARM_THRESHOLD);
+    bool current_distance_alarm = (distance < ALARM_THRESHOLD);
     static bool sensor_alarm_triggered = false;
     static bool alarm_active_latch = false;
     static bool manual_alarm_triggered = false;
@@ -140,22 +140,24 @@ void publish_worker_fn(async_context_t *context,
     static uint32_t cleared_message_end_time = 0;
     const uint32_t CLEAR_MESSAGE_DURATION_MS = 2000;
     const uint32_t BUTTON_DEBOUNCE_TIME_US = 200000; // 200 ms
-    
+
     bool clear_button_down = !gpio_get(CLEAR_BUTTON_PIN);
     uint32_t current_time = time_us_32();
 
     // Debouncing and reset alarm
-    if (clear_button_down && (current_time - last_button_press_time > BUTTON_DEBOUNCE_TIME_US)) {
-	last_button_press_time = current_time;
+    if (clear_button_down &&
+        (current_time - last_button_press_time > BUTTON_DEBOUNCE_TIME_US)) {
+        last_button_press_time = current_time;
         manual_alarm_triggered = !manual_alarm_triggered;
-        sensor_alarm_triggered = false; 
+        sensor_alarm_triggered = false;
         alarm_cleared = manual_alarm_triggered ? false : true;
-	if (alarm_cleared) {
-            cleared_message_end_time = current_time + CLEAR_MESSAGE_DURATION_MS * 1000;
+        if (alarm_cleared) {
+            cleared_message_end_time =
+                current_time + CLEAR_MESSAGE_DURATION_MS * 1000;
         }
     } else if (current_distance_alarm && !manual_alarm_triggered) {
-	    sensor_alarm_triggered = true;
-	    alarm_cleared = false;
+        sensor_alarm_triggered = true;
+        alarm_cleared = false;
     }
     alarm_active_latch = sensor_alarm_triggered || manual_alarm_triggered;
 
@@ -179,15 +181,16 @@ void publish_worker_fn(async_context_t *context,
 
     gpio_put(LED_PIN, alarm_active_latch);
     if (!pwm_initialized) {
-    gpio_set_function(BUZZER_TRIG_PIN, GPIO_FUNC_PWM);
-    slice_num = pwm_gpio_to_slice_num(BUZZER_TRIG_PIN);
-    pwm_set_clkdiv(slice_num, 10.0f);
-    pwm_set_wrap(slice_num, 12500); //frequency in kHz
-    pwm_set_chan_level(slice_num, pwm_gpio_to_channel(BUZZER_TRIG_PIN), 6250); // 50%
-    pwm_initialized = true;
-}
+        gpio_set_function(BUZZER_TRIG_PIN, GPIO_FUNC_PWM);
+        slice_num = pwm_gpio_to_slice_num(BUZZER_TRIG_PIN);
+        pwm_set_clkdiv(slice_num, 10.0f);
+        pwm_set_wrap(slice_num, 12500); // frequency in kHz
+        pwm_set_chan_level(slice_num, pwm_gpio_to_channel(BUZZER_TRIG_PIN),
+                           6250); // 50%
+        pwm_initialized = true;
+    }
 
-//  set buzzer with PWM
+    //  set buzzer with PWM
     if (alarm_active_latch) {
         pwm_set_enabled(slice_num, true);
     } else {

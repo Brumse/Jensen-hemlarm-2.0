@@ -6,10 +6,12 @@
  * [mqtt.c](https://github.com/raspberrypi/pico-examples/blob/master/pico_w/wifi/mqtt/mqtt_client.c)
  */
 #include "hardware/i2c.h"
+#include "hardware/pwm.h"
 #include "lcd_printer.h"
 #include "lwip/apps/mqtt.h"
-#include "mqtt_config.h"
+#include "melody.h"
 #include "mqtt_client_data.h"
+#include "mqtt_config.h"
 #include "mqtt_functions.h"
 #include "pico/binary_info.h"
 #include "pico/cyw43_arch.h"
@@ -19,8 +21,6 @@
 #include <cstdio>
 #include <lwip/ip4_addr.h>
 #include <pico/time.h>
-#include "melody.h"
-#include "hardware/pwm.h"
 
 /**
  * @brief Good old main
@@ -31,25 +31,28 @@ int main(void) {
 
     stdio_init_all();
     printf("Initializing Pico W...");
-    // sensor and lcd init
-    // init button pin
-    //  initilize GPIO-pins
+    
+    // init sensor pin
     gpio_init(TRIG_PIN);
     gpio_set_dir(TRIG_PIN, GPIO_OUT);
     gpio_init(ECHO_PIN);
     gpio_set_dir(ECHO_PIN, GPIO_IN);
+    
+    // init Led pin
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
-
-    gpio_init(CLEAR_BUTTON_PIN);
-    gpio_set_dir(CLEAR_BUTTON_PIN,GPIO_IN);
-    gpio_pull_up(CLEAR_BUTTON_PIN);
     
+    // init button pin
+    gpio_init(CLEAR_BUTTON_PIN);
+    gpio_set_dir(CLEAR_BUTTON_PIN, GPIO_IN);
+    gpio_pull_up(CLEAR_BUTTON_PIN);
+
+    //init buzzzer pin
     gpio_init(BUZZER_TRIG_PIN);
     gpio_set_dir(BUZZER_TRIG_PIN, GPIO_OUT);
     gpio_put(BUZZER_TRIG_PIN, 0);
 
-    // Initiera I2C och LCD
+    // initiera I2C och LCD
 #ifdef i2c_default
     i2c_init(i2c_default, 100 * 1000);
     gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
@@ -81,8 +84,8 @@ int main(void) {
     lcd_string("Conn to MQTT...");
     sleep_ms(1000);
 #endif
+    
     // Setup mqtt client info
-
     static mqtt_client_data_t state;
     state.alarm_active = false;
     if (!ipaddr_aton(_MQTT_BROKER_IP, &state.mqtt_server_address)) {
@@ -109,6 +112,7 @@ int main(void) {
 
     // Setup the mqtt client and start the mqtt cycle
     start_client(&state);
+
 #ifdef i2c_default
     lcd_clear();
     lcd_string("MQTT Connected!");

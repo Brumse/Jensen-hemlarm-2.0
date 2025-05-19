@@ -103,11 +103,11 @@ const float ALARM_THRESHOLD = 10.0f;
 
 ```bash
     make -C build
-```
+```completeproduct
 Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
 5. Koppla enligt schema 
-![Alt text](https://github.com/Brumse/Jensen-hemlarm-2.0/blob/main/images/lcd-motion-mqtt.png?raw=true "Title")
+![Alt text](https://github.com/Brumse/Jensen-hemlarm-2.0/blob/main/images/completeproduct.png?raw=true "Title")
 
 
 7.  **Bootload Pico W:**

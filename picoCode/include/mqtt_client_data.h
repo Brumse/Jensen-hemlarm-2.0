@@ -1,7 +1,7 @@
 #pragma once
-#include "mqtt_config.h"    
-#include "lwip/apps/mqtt.h" 
-#include "lwip/ip_addr.h"   
+#include "lwip/apps/mqtt.h"
+#include "lwip/ip_addr.h"
+#include "mqtt_config.h"
 
 /**
  * @brief All data related to mqtt connection
