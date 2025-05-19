@@ -31,23 +31,23 @@ int main(void) {
 
     stdio_init_all();
     printf("Initializing Pico W...");
-    
+
     // init sensor pin
     gpio_init(TRIG_PIN);
     gpio_set_dir(TRIG_PIN, GPIO_OUT);
     gpio_init(ECHO_PIN);
     gpio_set_dir(ECHO_PIN, GPIO_IN);
-    
+
     // init Led pin
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
-    
+
     // init button pin
     gpio_init(CLEAR_BUTTON_PIN);
     gpio_set_dir(CLEAR_BUTTON_PIN, GPIO_IN);
     gpio_pull_up(CLEAR_BUTTON_PIN);
 
-    //init buzzzer pin
+    // init buzzzer pin
     gpio_init(BUZZER_TRIG_PIN);
     gpio_set_dir(BUZZER_TRIG_PIN, GPIO_OUT);
     gpio_put(BUZZER_TRIG_PIN, 0);
@@ -84,7 +84,7 @@ int main(void) {
     lcd_string("Conn to MQTT...");
     sleep_ms(1000);
 #endif
-    
+
     // Setup mqtt client info
     static mqtt_client_data_t state;
     state.alarm_active = false;

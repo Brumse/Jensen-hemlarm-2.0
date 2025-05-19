@@ -40,9 +40,7 @@ void lcd_send_byte(uint8_t val, int mode) {
     lcd_toggle_enable(low);
 }
 
-void lcd_clear(void) { 
-	lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND);
-}
+void lcd_clear(void) { lcd_send_byte(LCD_CLEARDISPLAY, LCD_COMMAND); }
 
 // go to location on LCD
 void lcd_set_cursor(int line, int position) {

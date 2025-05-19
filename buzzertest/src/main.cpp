@@ -1,9 +1,9 @@
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
-#include "stdio.h"
 #include "hardware/clocks.h"
-#include <stdlib.h>
+#include "hardware/pwm.h"
 #include "melody.h"
+#include "pico/stdlib.h"
+#include "stdio.h"
+#include <stdlib.h>
 
 #define BUZZER_PIN 17
 
@@ -13,7 +13,7 @@ int buzzer = 11;
 void play_tone(uint slice_num, uint chan, uint frequency, uint duration_ms) {
     if (frequency > 0) {
         uint32_t system_clock = clock_get_hz(clk_sys);
-        uint32_t divider = system_clock / (frequency * 2000);  
+        uint32_t divider = system_clock / (frequency * 2000);
         pwm_set_clkdiv(slice_num, divider);
         pwm_set_wrap(slice_num, 2000);
         pwm_set_chan_level(slice_num, chan, 1000); // 50% duty cycle
