@@ -103,7 +103,7 @@ const float ALARM_THRESHOLD = 10.0f;
 
 ```bash
     make -C build
-```completeproduct
+```
 Den kompilerade `.uf2`-filen skapas i `build/bin`.
 
 5. Koppla enligt schema 
@@ -124,6 +124,10 @@ om du inte har satt upp Rasp Zero så kan ni kolla på detta repo
 ```bash 
     sudo apt install mosquitto mosquitto-clients -y
 ``` 
+```bash
+    sudo apt install libmosquitto-dev
+    sudo apt install libjansson-dev libcurl4-openssl-dev
+```
 8. Lägg in information i mosquitto conf för att kunna lyssna och välj rätt port.
 ```bash
     sudo vim /etc/mosquitto/mosquitto.conf
@@ -133,29 +137,17 @@ lägg in detta längst ner i filen:
     allow_anonymous true
     listener 1883 0.0.0.0
 ```
-**säkerställ att dessa är installerad på zeron**
+
+9. klona repon i din Raspberry Zero bygg zeroCode och kör den.
 ```bash
-    sudo apt install libmosquitto-dev
-    sudo apt install libjansson-dev libcurl4-openssl-dev
+    https://github.com/Brumse/RaspberryZero
 ```
-
-
-
-9. kör en subscribe på ämnet, visar att det är larm
-    bygg vidare på denna så även info om enhet skickas med.. 
-
-```bash 
-    mosquitto_sub -t /motion/alarm
-```
-10. kör en till sub via ett annat terminalfönster, visar distancen vid larm 
+kör programmet på zeron.
 ```bash
-    mosquitto_sub -t /motion/distance
+    ./build/bin/mqtt_to_api
 ```
-11. kör en tredje sub via nytt fönster, visar en indikation om picon förlorar ström / går offline..
-```bash 
-    mosquitto_sub -t /alarm/offline -v
 
-```
+## Notera att mqtt_to_api på rasp zero  måste köra innan koden pico W för att det krävs att någon lyssnar via mqtt för att den ska köra.
 ## Felhantering
 
 * Om anslutningen misslyckas, kontrollera att ditt SSID och lösenord är korrekta.
