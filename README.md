@@ -48,7 +48,7 @@ graph TD
 
 2.  **Skapa headerfil med WiFi-uppgifter:**
 ```bash
-    cat > include/wifi_credentials.h << EOF
+    cat > picoCode/include/wifi_credentials.h << EOF
     #pragma once
     #include <string>
 
@@ -58,7 +58,7 @@ graph TD
 ```
 **Lägg till mqtt config med IP för raspberry zero**
 ```bash
-    cat > include/mqtt_config.h << EOF
+    cat > picoCode/include/mqtt_config.h << EOF
 #pragma once
 
 
@@ -140,7 +140,8 @@ lägg in detta längst ner i filen:
 
 9. klona repon i din Raspberry Zero bygg zeroCode och kör den.
 ```bash
-    https://github.com/Brumse/RaspberryZero
+    git clone https://github.com/Brumse/Jensen-hemlarm-2.0.git
+    cd zeroCode/
 ```
 kör programmet på zeron.
 ```bash
